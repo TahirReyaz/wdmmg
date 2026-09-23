@@ -1,0 +1,3 @@
+#!/bin/sh
+# Alias for ./mvnw  ->  ./maven spring-boot:run
+exec "$(cd "$(dirname "$0")" && pwd)/mvnw" "$@"
