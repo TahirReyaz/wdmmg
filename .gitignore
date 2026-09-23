@@ -1,0 +1,28 @@
+target/
+
+### Maven Wrapper ###
+# distributionType=only-script, so there is no wrapper jar to ignore.
+# .mvn/wrapper/maven-wrapper.properties IS committed - it pins the Maven version.
+.mvn/.develocity/
+.mvn/.gradle-enterprise/
+
+### Environment ###
+.env
+.env.local
+*.local
+
+### IDE ###
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+.sts4-cache/
+
+### OS ###
+.DS_Store
+Thumbs.db
+
+### Logs ###
+*.log
