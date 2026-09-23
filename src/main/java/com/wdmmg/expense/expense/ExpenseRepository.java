@@ -33,4 +33,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpec
             order by e.date desc, e.id desc
             """)
     List<Expense> findInRange(@Param("userId") Long userId, @Param("from") LocalDate from, @Param("to") LocalDate to);
+
+    @Query("select coalesce(sum(e.amount), 0) from Expense e where e.user.id = :userId and e.date between :from and :to")
+    java.math.BigDecimal sum(@Param("userId") Long userId, @Param("from") LocalDate from, @Param("to") LocalDate to);
 }

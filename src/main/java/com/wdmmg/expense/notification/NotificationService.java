@@ -76,6 +76,12 @@ public class NotificationService {
         repo.markAllRead(userId, Instant.now());
     }
 
+    /** Marks all of a user's notifications of one type as dealt with. */
+    @Transactional
+    public void resolveForUser(Long userId, NotificationType type) {
+        repo.markReadByType(userId, type, Instant.now());
+    }
+
     /** Called when the thing a notification asked about has been dealt with elsewhere. */
     @Transactional
     public void resolve(NotificationType type, Long refId) {

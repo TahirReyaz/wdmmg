@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -34,4 +36,17 @@ public interface SettlementRepository extends JpaRepository<Settlement, Long> {
             where s.toUser.id = :userId and s.group.id in :ids group by s.group.id
             """)
     List<Object[]> receivedByUserPerGroup(@Param("userId") Long userId, @Param("ids") Collection<Long> ids);
+
+    // ---- cash-flow ----
+    @Query("select coalesce(sum(s.amount), 0) from Settlement s where s.fromUser.id = :userId and s.date between :from and :to")
+    BigDecimal sumSent(@Param("userId") Long userId, @Param("from") LocalDate from, @Param("to") LocalDate to);
+
+    @Query("select coalesce(sum(s.amount), 0) from Settlement s where s.toUser.id = :userId and s.date between :from and :to")
+    BigDecimal sumReceived(@Param("userId") Long userId, @Param("from") LocalDate from, @Param("to") LocalDate to);
+
+    @Query("""
+            select s from Settlement s join fetch s.fromUser join fetch s.toUser join fetch s.group
+            where (s.fromUser.id = :userId or s.toUser.id = :userId) and s.date between :from and :to
+            """)
+    List<Settlement> findForUserInRange(@Param("userId") Long userId, @Param("from") LocalDate from, @Param("to") LocalDate to);
 }

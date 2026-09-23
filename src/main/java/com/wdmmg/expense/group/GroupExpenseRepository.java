@@ -62,4 +62,17 @@ public interface GroupExpenseRepository extends JpaRepository<GroupExpense, Long
             """)
     List<GroupExpenseShare> findUserSharesInRange(@Param("userId") Long userId, @Param("from") LocalDate from,
                                                   @Param("to") LocalDate to);
+
+    // ---- cash-flow: group bills the user paid for (the full amount left their account) ----
+    @Query("""
+            select coalesce(sum(ge.amount), 0) from GroupExpense ge
+            where ge.paidBy.id = :userId and ge.date between :from and :to
+            """)
+    java.math.BigDecimal sumPaidBy(@Param("userId") Long userId, @Param("from") LocalDate from, @Param("to") LocalDate to);
+
+    @Query("""
+            select ge from GroupExpense ge join fetch ge.group
+            where ge.paidBy.id = :userId and ge.date between :from and :to
+            """)
+    List<GroupExpense> findPaidByInRange(@Param("userId") Long userId, @Param("from") LocalDate from, @Param("to") LocalDate to);
 }
