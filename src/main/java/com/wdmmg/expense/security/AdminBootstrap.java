@@ -35,12 +35,14 @@ public class AdminBootstrap implements ApplicationRunner {
                 u.setRole(Role.ADMIN);
                 log.info("Promoted {} to ADMIN", email);
             }
+            u.setEmailVerified(true);
         }, () -> {
             User admin = new User();
             admin.setEmail(email);
             admin.setName(props.admin().name());
             admin.setPasswordHash(encoder.encode(props.admin().password()));
             admin.setRole(Role.ADMIN);
+            admin.setEmailVerified(true);
             users.save(admin);
             log.info("Created admin account {}", email);
         });

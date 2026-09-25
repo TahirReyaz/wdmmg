@@ -25,6 +25,21 @@ spring:
     multipart:
       max-file-size: 2MB
       max-request-size: 3MB
+  # Outbound mail (SMTP). Google Workspace / Gmail: smtp.gmail.com:587 + STARTTLS,
+  # username = the mailbox address, password = a 16-char App Password (needs 2-Step Verification).
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    default-encoding: UTF-8
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.starttls.required: true
+      mail.smtp.connectiontimeout: 10000
+      mail.smtp.timeout: 15000
+      mail.smtp.writetimeout: 15000
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -39,6 +54,10 @@ management:
     web:
       exposure:
         include: health
+  health:
+    # Don't report the app as DOWN just because SMTP isn't configured yet.
+    mail:
+      enabled: false
 
 springdoc:
   swagger-ui:
@@ -50,9 +69,46 @@ app:
     expiration-hours: ${JWT_EXPIRATION_HOURS:72}
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:3000}
+  # Where the frontend lives – used for links in emails.
+  public-url: ${APP_PUBLIC_URL:http://localhost:3000}
   # Used to decide what "today" is for recurring expenses.
   zone: ${APP_TIMEZONE:Asia/Kolkata}
   admin:
     email: ${ADMIN_EMAIL:admin@expense.app}
     password: ${ADMIN_PASSWORD:Admin@12345}
     name: ${ADMIN_NAME:Administrator}
+  mail:
+    # false = emails (e.g. verification codes) are written to the log instead of sent. Handy in dev.
+    enabled: ${MAIL_ENABLED:false}
+    from: ${MAIL_FROM:${MAIL_USERNAME:no-reply@localhost}}
+    from-name: ${MAIL_FROM_NAME:Where did my money go}
+    inbound:
+      # Polls a mailbox over IMAP and hands each new message to the inbound handlers.
+      enabled: ${MAIL_INBOUND_ENABLED:false}
+      host: ${MAIL_IMAP_HOST:imap.gmail.com}
+      port: ${MAIL_IMAP_PORT:993}
+      username: ${MAIL_IMAP_USERNAME:${MAIL_USERNAME:}}
+      password: ${MAIL_IMAP_PASSWORD:${MAIL_PASSWORD:}}
+      folder: ${MAIL_IMAP_FOLDER:INBOX}
+      poll-seconds: ${MAIL_POLL_SECONDS:60}
+      max-per-poll: ${MAIL_MAX_PER_POLL:25}
+      # Drop mail whose SPF/DKIM/DMARC checks (as recorded by the receiving server) failed.
+      require-sender-auth: ${MAIL_REQUIRE_SENDER_AUTH:true}
+  verification:
+    code-ttl-minutes: ${VERIFICATION_CODE_TTL_MINUTES:10}
+    max-attempts: 5
+    resend-cooldown-seconds: 60
+    max-codes-per-hour: 5
+  ai:
+    # Powers analytics insights and turning emails into expenses. "none" = off (emails are only logged).
+    provider: ${AI_PROVIDER:none}
+    # Currency amounts in emails are assumed to be in when none is written.
+    currency: ${APP_CURRENCY:INR}
+    gemini:
+      api-key: ${GEMINI_API_KEY:}
+      model: ${GEMINI_MODEL:gemini-2.5-flash}
+      base-url: ${GEMINI_BASE_URL:https://generativelanguage.googleapis.com/v1beta}
+    insights:
+      # Generated insights are reused while the underlying numbers are unchanged.
+      cache-hours: 6
+      max-per-user-per-hour: 20

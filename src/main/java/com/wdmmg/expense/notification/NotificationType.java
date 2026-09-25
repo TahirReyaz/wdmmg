@@ -10,5 +10,7 @@ public enum NotificationType {
     /** A recurring expense is due and needs confirming. */
     RECURRING_DUE,
     /** Monthly nudge to record salary. */
-    SALARY_DUE
+    SALARY_DUE,
+    /** An expense was created from an email the user sent in. */
+    EXPENSE_FROM_EMAIL
 }

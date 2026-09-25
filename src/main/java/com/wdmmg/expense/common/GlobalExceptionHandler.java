@@ -22,16 +22,20 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     public record ErrorResponse(Instant timestamp, int status, String error, String message,
-                                Map<String, String> fieldErrors) {}
+                                Map<String, String> fieldErrors, String code) {}
 
     private ResponseEntity<ErrorResponse> build(HttpStatus status, String message, Map<String, String> fields) {
+        return build(status, message, fields, null);
+    }
+
+    private ResponseEntity<ErrorResponse> build(HttpStatus status, String message, Map<String, String> fields, String code) {
         return ResponseEntity.status(status)
-                .body(new ErrorResponse(Instant.now(), status.value(), status.getReasonPhrase(), message, fields));
+                .body(new ErrorResponse(Instant.now(), status.value(), status.getReasonPhrase(), message, fields, code));
     }
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ErrorResponse> handleApi(ApiException ex) {
-        return build(ex.getStatus(), ex.getMessage(), null);
+        return build(ex.getStatus(), ex.getMessage(), null, ex.getCode());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

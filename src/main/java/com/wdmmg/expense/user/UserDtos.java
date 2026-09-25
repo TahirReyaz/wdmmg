@@ -16,6 +16,15 @@ public final class UserDtos {
 
     public record LoginRequest(@NotBlank @Email String email, @NotBlank String password) {}
 
+    /** Sign-up doesn't sign you in: the address must be confirmed with the emailed code first. */
+    public record RegisterResponse(String email, boolean verificationRequired, int codeExpiresInSeconds, long resendAfterSeconds) {}
+
+    public record VerifyEmailRequest(@NotBlank @Email String email, @NotBlank @Size(max = 12) String code) {}
+
+    public record ResendCodeRequest(@NotBlank @Email String email) {}
+
+    public record ResendCodeResponse(int codeExpiresInSeconds, long resendAfterSeconds) {}
+
     public record UpdateProfileRequest(@NotBlank @Size(max = 100) String name) {}
 
     public record ChangePasswordRequest(

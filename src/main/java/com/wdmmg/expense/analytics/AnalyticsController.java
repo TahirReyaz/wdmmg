@@ -14,9 +14,11 @@ import java.util.List;
 @RequestMapping("/api/analytics")
 public class AnalyticsController {
     private final AnalyticsService service;
+    private final InsightsService insights;
 
-    public AnalyticsController(AnalyticsService service) {
+    public AnalyticsController(AnalyticsService service, InsightsService insights) {
         this.service = service;
+        this.insights = insights;
     }
 
     /**
@@ -37,5 +39,18 @@ public class AnalyticsController {
                                             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
                                             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         return service.groupShares(me.id(), from, to);
+    }
+
+    /**
+     * AI-written reading of the same figures as /summary. Cached while the numbers are unchanged;
+     * refresh=true asks for a new take (rate-limited).
+     */
+    @GetMapping("/insights")
+    public InsightsDtos.InsightsResponse insights(@AuthenticationPrincipal AuthUser me,
+                                                  @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+                                                  @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+                                                  @RequestParam(defaultValue = "true") boolean includeGroups,
+                                                  @RequestParam(defaultValue = "false") boolean refresh) {
+        return insights.insights(me.id(), from, to, includeGroups, refresh);
     }
 }

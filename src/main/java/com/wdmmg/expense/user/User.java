@@ -33,6 +33,10 @@ public class User {
     @Column(nullable = false, length = 20)
     private Role role = Role.USER;
 
+    /** Set once the user proves they own the address with a one-time code. */
+    @Column(name = "email_verified", nullable = false)
+    private boolean emailVerified;
+
     /** Key of the current profile picture in user_avatars, or null for the initials placeholder. */
     @Column(name = "avatar_key")
     private UUID avatarKey;
