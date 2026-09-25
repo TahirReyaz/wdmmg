@@ -1,0 +1,62 @@
+# Render Blueprint for this backend repo (the frontend is on Vercel).
+# Render dashboard → New → Blueprint → pick this repo. Values marked sync: false are
+# asked for once in the dashboard and never stored in git.
+services:
+  - type: web
+    name: wdmmg-api
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: ./Dockerfile
+    region: singapore
+    plan: free
+    healthCheckPath: /actuator/health
+    envVars:
+      # Database (Neon): jdbc:postgresql://<host>/<db>?sslmode=require
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_POOL_SIZE
+        value: "5"
+
+      # Auth
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+
+      # Your Vercel address(es), comma-separated. Wildcards work, e.g.
+      # https://your-app.vercel.app,https://your-app-*.vercel.app (preview deployments)
+      - key: CORS_ORIGINS
+        sync: false
+      # Used for links in emails, e.g. https://your-app.vercel.app
+      - key: APP_PUBLIC_URL
+        sync: false
+      - key: APP_TIMEZONE
+        value: Asia/Kolkata
+
+      # Email (Google Workspace / Gmail App Password)
+      - key: MAIL_ENABLED
+        value: "true"
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: MAIL_FROM_NAME
+        value: Where did my money go
+      - key: MAIL_INBOUND_ENABLED
+        value: "true"
+
+      # Gemini
+      - key: AI_PROVIDER
+        value: gemini
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash

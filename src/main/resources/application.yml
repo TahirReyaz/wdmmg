@@ -1,6 +1,8 @@
 spring:
   application:
     name: expense-manager
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
   # Lets you keep secrets in backend/.env (KEY=value lines). Real env vars win.
   config:
     import: optional:file:.env[.properties]
@@ -48,6 +50,10 @@ server:
   port: ${PORT:8080}
   error:
     include-message: always
+  # Behind Render's / any load balancer: trust X-Forwarded-* for scheme and host.
+  forward-headers-strategy: framework
+  # Finish in-flight requests when the platform stops the container (redeploys).
+  shutdown: graceful
 
 management:
   endpoints:
