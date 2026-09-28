@@ -64,6 +64,7 @@ public class MailAdminController {
     public Map<String, Object> status() {
         return Map.of(
                 "outboundEnabled", props.enabled(),
+                "provider", props.enabled() ? props.provider() : "log",
                 "from", props.from() == null ? "" : props.from(),
                 "inboundEnabled", props.inbound() != null && props.inbound().enabled(),
                 "inboundMailbox", props.inbound() == null || props.inbound().username() == null ? "" : props.inbound().username(),
@@ -81,7 +82,8 @@ public class MailAdminController {
             throw new ApiException(HttpStatus.BAD_GATEWAY, "Sending failed: " + cause.getMessage(), "MAIL_SEND_FAILED");
         }
         return Map.of("sent", true, "delivered", props.enabled(),
-                "note", props.enabled() ? "Handed to the SMTP server" : "MAIL_ENABLED=false – written to the server log instead");
+                "note", !props.enabled() ? "MAIL_ENABLED=false – written to the server log instead"
+                        : MailProperties.RESEND.equals(props.provider()) ? "Accepted by Resend" : "Handed to the SMTP server");
     }
 
     @GetMapping("/inbound")

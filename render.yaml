@@ -39,14 +39,20 @@ services:
       - key: APP_TIMEZONE
         value: Asia/Kolkata
 
-      # Email (Google Workspace / Gmail App Password)
+      # Email out: Resend's HTTPS API (Render's free plan blocks SMTP ports).
       - key: MAIL_ENABLED
         value: "true"
+      - key: MAIL_PROVIDER
+        value: resend
+      - key: RESEND_API_KEY
+        sync: false
+      # An address on the domain you verified in Resend
+      - key: MAIL_FROM
+        sync: false
+      # Email in (IMAP, not blocked): the Workspace mailbox + Gmail App Password
       - key: MAIL_USERNAME
         sync: false
       - key: MAIL_PASSWORD
-        sync: false
-      - key: MAIL_FROM
         sync: false
       - key: MAIL_FROM_NAME
         value: Where did my money go
