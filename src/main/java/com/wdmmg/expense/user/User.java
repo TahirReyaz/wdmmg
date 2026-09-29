@@ -37,6 +37,10 @@ public class User {
     @Column(name = "email_verified", nullable = false)
     private boolean emailVerified;
 
+    /** Optional UPI ID (VPA) so group members can pay this user from a UPI app. */
+    @Column(name = "upi_id", length = 100)
+    private String upiId;
+
     /** Key of the current profile picture in user_avatars, or null for the initials placeholder. */
     @Column(name = "avatar_key")
     private UUID avatarKey;

@@ -127,7 +127,7 @@ public class GroupService {
         involved.addAll(recv.keySet());
         for (Long id : involved) {
             people.computeIfAbsent(id, k -> users.findById(k).map(UserSummary::from)
-                    .orElse(new UserSummary(k, "Unknown", "", null)));
+                    .orElse(new UserSummary(k, "Unknown", "", null, null)));
         }
 
         List<MemberBalance> balances = new ArrayList<>();

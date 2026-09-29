@@ -31,6 +31,8 @@ public class UserController {
     public UserResponse update(@AuthenticationPrincipal AuthUser me, @Valid @RequestBody UpdateProfileRequest req) {
         User u = load(me);
         u.setName(req.name().trim());
+        // Absent keeps the saved UPI ID (older clients only send name); "" removes it.
+        if (req.upiId() != null) u.setUpiId(UpiIds.normalize(req.upiId()));
         return UserResponse.from(u);
     }
 

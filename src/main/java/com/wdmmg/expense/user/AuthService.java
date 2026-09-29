@@ -49,6 +49,7 @@ public class AuthService {
             u.setRole(Role.USER);
         }
         u.setName(req.name().trim());
+        u.setUpiId(UpiIds.normalize(req.upiId()));
         u.setPasswordHash(encoder.encode(req.password()));
         users.save(u);
         verification.issueIfAllowed(u);
