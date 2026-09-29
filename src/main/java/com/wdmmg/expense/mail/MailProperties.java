@@ -25,6 +25,20 @@ public record MailProperties(boolean enabled, String provider, String from, Stri
 
     public record Resend(String apiKey, String baseUrl) {}
 
-    public record Inbound(boolean enabled, String host, int port, String username, String password, String folder,
-                          int pollSeconds, int maxPerPoll, boolean requireSenderAuth) {}
+    /**
+     * @param provider      "imap" (log into a mailbox and poll it) or "resend" (Resend pushes each
+     *                      received email to /api/inbound/resend)
+     * @param webhookSecret Resend webhook signing secret (whsec_…), for provider=resend
+     */
+    public record Inbound(boolean enabled, String provider, String host, int port, String username, String password,
+                          String folder, int pollSeconds, int maxPerPoll, boolean requireSenderAuth, String webhookSecret) {
+        public static final String IMAP = "imap";
+
+        public Inbound {
+            provider = provider == null || provider.isBlank() ? IMAP : provider.trim().toLowerCase(Locale.ROOT);
+            if (!provider.equals(IMAP) && !provider.equals(RESEND)) {
+                throw new IllegalArgumentException("MAIL_INBOUND_PROVIDER must be 'imap' or 'resend' (was '" + provider + "')");
+            }
+        }
+    }
 }

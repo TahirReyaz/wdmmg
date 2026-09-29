@@ -11,7 +11,7 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.search.FlagTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * {@link InboundEmailService} and then flagged \Seen so it isn't picked up again.
  */
 @Component
-@ConditionalOnProperty(prefix = "app.mail.inbound", name = "enabled", havingValue = "true")
+@ConditionalOnExpression("${app.mail.inbound.enabled:false} and !'${app.mail.inbound.provider:imap}'.trim().equalsIgnoreCase('resend')")
 public class ImapMailboxPoller {
     private static final Logger log = LoggerFactory.getLogger(ImapMailboxPoller.class);
 

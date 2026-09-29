@@ -49,15 +49,16 @@ services:
       # An address on the domain you verified in Resend
       - key: MAIL_FROM
         sync: false
-      # Email in (IMAP, not blocked): the Workspace mailbox + Gmail App Password
-      - key: MAIL_USERNAME
-        sync: false
-      - key: MAIL_PASSWORD
-        sync: false
       - key: MAIL_FROM_NAME
         value: Where did my money go
+      # Email in: Resend receiving → webhook to POST /api/inbound/resend (also wakes a sleeping instance).
+      # RESEND_API_KEY must have Full access so the app can fetch received emails.
       - key: MAIL_INBOUND_ENABLED
         value: "true"
+      - key: MAIL_INBOUND_PROVIDER
+        value: resend
+      - key: RESEND_WEBHOOK_SECRET
+        sync: false
 
       # Gemini
       - key: AI_PROVIDER

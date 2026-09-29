@@ -7,6 +7,7 @@ import com.wdmmg.expense.user.User;
 import com.wdmmg.expense.user.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -48,15 +49,24 @@ public class InboundEmailService {
             log.debug("Skipping already-processed message {}", email.messageId());
             return null;
         }
-        log.info("Inbound email {} from {} – subject: '{}'", email.messageId(), email.fromAddress(), email.subject());
 
         InboundEmail rec = new InboundEmail();
         rec.setMessageId(email.messageId());
-        rec.setFromAddress(email.fromAddress());
+        rec.setFromAddress(truncate(email.fromAddress(), 320));
         rec.setFromName(truncate(email.fromName(), 200));
         rec.setSubject(truncate(email.subject(), 998));
         rec.setBodyText(truncate(email.text(), MAX_BODY));
         rec.setReceivedAt(email.receivedAt());
+        rec.setStatus(InboundStatus.PROCESSING);
+        // Claim the Message-ID before doing any work. If a retry of the same webhook (or a
+        // second poll) races us, the unique constraint lets exactly one of them through.
+        try {
+            rec = repo.saveAndFlush(rec);
+        } catch (DataIntegrityViolationException dup) {
+            log.debug("Message {} is already being handled", email.messageId());
+            return null;
+        }
+        log.info("Inbound email {} from {} – subject: '{}'", email.messageId(), email.fromAddress(), email.subject());
 
         HandlerResult result;
         if (SenderChecks.looksAutomated(email)) {

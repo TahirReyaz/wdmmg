@@ -94,8 +94,12 @@ app:
     from: ${MAIL_FROM:${MAIL_USERNAME:no-reply@localhost}}
     from-name: ${MAIL_FROM_NAME:Where did my money go}
     inbound:
-      # Polls a mailbox over IMAP and hands each new message to the inbound handlers.
+      # Receive expense emails. provider=imap polls a mailbox (host/username/password below);
+      # provider=resend takes Resend "email.received" webhooks at POST /api/inbound/resend.
       enabled: ${MAIL_INBOUND_ENABLED:false}
+      provider: ${MAIL_INBOUND_PROVIDER:imap}
+      # Resend → Webhooks → your endpoint → Signing secret (whsec_…)
+      webhook-secret: ${RESEND_WEBHOOK_SECRET:}
       host: ${MAIL_IMAP_HOST:imap.gmail.com}
       port: ${MAIL_IMAP_PORT:993}
       username: ${MAIL_IMAP_USERNAME:${MAIL_USERNAME:}}

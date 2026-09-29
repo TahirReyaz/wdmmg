@@ -38,6 +38,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(a -> a
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/avatars/**").permitAll()
+                        // Mail-provider webhooks: no JWT; each request is verified by its signature instead.
+                        .requestMatchers(HttpMethod.POST, "/api/inbound/**").permitAll()
                         .requestMatchers("/api/auth/**", "/actuator/health", "/error",
                                 "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

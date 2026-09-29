@@ -67,6 +67,7 @@ public class MailAdminController {
                 "provider", props.enabled() ? props.provider() : "log",
                 "from", props.from() == null ? "" : props.from(),
                 "inboundEnabled", props.inbound() != null && props.inbound().enabled(),
+                "inboundProvider", props.inbound() == null ? "imap" : props.inbound().provider(),
                 "inboundMailbox", props.inbound() == null || props.inbound().username() == null ? "" : props.inbound().username(),
                 "pollSeconds", props.inbound() == null ? 0 : props.inbound().pollSeconds());
     }
@@ -97,7 +98,13 @@ public class MailAdminController {
     @PostMapping("/inbound/poll")
     public Map<String, Object> pollNow() {
         ImapMailboxPoller p = poller.getIfAvailable();
-        if (p == null) throw ApiException.badRequest("Inbound mail is disabled (MAIL_INBOUND_ENABLED=false)");
+        if (p == null) {
+            boolean resend = props.inbound() != null && props.inbound().enabled()
+                    && MailProperties.RESEND.equals(props.inbound().provider());
+            throw ApiException.badRequest(resend
+                    ? "Nothing to poll: incoming mail arrives from Resend webhooks (MAIL_INBOUND_PROVIDER=resend)"
+                    : "Inbound mail is disabled (MAIL_INBOUND_ENABLED=false)");
+        }
         return Map.of("processed", p.poll());
     }
 
