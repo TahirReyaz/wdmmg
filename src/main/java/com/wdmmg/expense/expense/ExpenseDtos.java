@@ -1,5 +1,6 @@
 package com.wdmmg.expense.expense;
 
+import com.wdmmg.expense.tag.TagDtos.TagRef;
 import com.wdmmg.expense.category.CategoryDtos.CategoryResponse;
 import jakarta.validation.constraints.*;
 
@@ -17,18 +18,20 @@ public final class ExpenseDtos {
             @NotNull LocalDate date,
             @NotNull Long categoryId,
             PaymentMethod paymentMethod,
-            @Size(max = 1000) String notes) {}
+            @Size(max = 1000) String notes,
+            /** Optional tag; null = untagged. */
+            Long tagId) {}
 
     public record ExpenseResponse(Long id, String name, BigDecimal amount, LocalDate date,
                                   CategoryResponse category, PaymentMethod paymentMethod, String notes,
-                                  Instant createdAt, Instant updatedAt) {
+                                  TagRef tag, Instant createdAt, Instant updatedAt) {
         public static ExpenseResponse from(Expense e) {
             return new ExpenseResponse(e.getId(), e.getName(), e.getAmount(), e.getDate(),
                     CategoryResponse.from(e.getCategory()), e.getPaymentMethod(), e.getNotes(),
-                    e.getCreatedAt(), e.getUpdatedAt());
+                    TagRef.from(e.getTag()), e.getCreatedAt(), e.getUpdatedAt());
         }
     }
 
     public record ExpenseFilter(LocalDate from, LocalDate to, Long categoryId, PaymentMethod paymentMethod,
-                                String q, BigDecimal minAmount, BigDecimal maxAmount) {}
+                                String q, BigDecimal minAmount, BigDecimal maxAmount, Long tagId) {}
 }

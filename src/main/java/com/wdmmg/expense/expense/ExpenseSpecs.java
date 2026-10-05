@@ -17,6 +17,7 @@ final class ExpenseSpecs {
             if (f.from() != null) p.add(cb.greaterThanOrEqualTo(root.get("date"), f.from()));
             if (f.to() != null) p.add(cb.lessThanOrEqualTo(root.get("date"), f.to()));
             if (f.categoryId() != null) p.add(cb.equal(root.get("category").get("id"), f.categoryId()));
+            if (f.tagId() != null) p.add(cb.equal(root.get("tag").get("id"), f.tagId()));
             if (f.paymentMethod() != null) p.add(cb.equal(root.get("paymentMethod"), f.paymentMethod()));
             if (f.minAmount() != null) p.add(cb.greaterThanOrEqualTo(root.get("amount"), f.minAmount()));
             if (f.maxAmount() != null) p.add(cb.lessThanOrEqualTo(root.get("amount"), f.maxAmount()));

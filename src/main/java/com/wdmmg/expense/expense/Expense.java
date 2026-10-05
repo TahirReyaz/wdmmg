@@ -1,5 +1,6 @@
 package com.wdmmg.expense.expense;
 
+import com.wdmmg.expense.tag.Tag;
 import com.wdmmg.expense.category.Category;
 import com.wdmmg.expense.user.User;
 import jakarta.persistence.*;
@@ -37,6 +38,11 @@ public class Expense {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "category_id")
     private Category category;
+
+    /** Optional cross-category label such as a trip. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tag_id")
+    private Tag tag;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false, length = 20)

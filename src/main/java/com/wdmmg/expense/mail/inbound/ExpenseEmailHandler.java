@@ -119,7 +119,7 @@ public class ExpenseEmailHandler implements InboundEmailHandler {
                 String notes = d.notes() == null ? EMAIL_NOTE : truncate(d.notes() + " · " + EMAIL_NOTE, 1000);
                 PaymentMethod method = d.paymentMethod() == null ? null : PaymentMethod.valueOf(d.paymentMethod());
                 ExpenseResponse saved = expenses.create(user.getId(),
-                        new ExpenseRequest(d.name(), d.amount(), d.date(), category.getId(), method, notes));
+                        new ExpenseRequest(d.name(), d.amount(), d.date(), category.getId(), method, notes, null));
                 notifications.notify(user.getId(), NotificationType.EXPENSE_FROM_EMAIL, "Added from your email: " + d.name(),
                         "/expenses", d.amount(), saved.id());
                 added.add(new AddedLine(d.name(), d.amount(), currency, d.date(), category.getName()));

@@ -10,7 +10,11 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
-/** Raises due recurring expenses: on startup and every 30 minutes (so a new day is picked up promptly). */
+/**
+ * Raises due recurring expenses: on startup and on a schedule (default every 30 minutes, so a new day
+ * is picked up promptly). Set RECURRING_CRON to run less often, e.g. "0 5 0,6,12,18 * * *", which
+ * matters when the app is kept awake and the database is billed by active compute time.
+ */
 @Component
 public class RecurringScheduler {
     private static final Logger log = LoggerFactory.getLogger(RecurringScheduler.class);
@@ -30,7 +34,7 @@ public class RecurringScheduler {
         run();
     }
 
-    @Scheduled(cron = "0 */30 * * * *", zone = "${app.zone:Asia/Kolkata}")
+    @Scheduled(cron = "${app.recurring.cron:0 */30 * * * *}", zone = "${app.zone:Asia/Kolkata}")
     public void run() {
         LocalDate today = clock.today();
         for (Long id : templates.findDueIds(today)) {

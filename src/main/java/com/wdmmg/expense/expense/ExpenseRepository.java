@@ -17,14 +17,14 @@ import java.util.Optional;
 public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpecificationExecutor<Expense> {
 
     @Override
-    @EntityGraph(attributePaths = "category")
+    @EntityGraph(attributePaths = {"category", "tag"})
     Page<Expense> findAll(Specification<Expense> spec, Pageable pageable);
 
     @Override
-    @EntityGraph(attributePaths = "category")
+    @EntityGraph(attributePaths = {"category", "tag"})
     List<Expense> findAll(Specification<Expense> spec, Sort sort);
 
-    @Query("select e from Expense e join fetch e.category where e.id = :id and e.user.id = :userId")
+    @Query("select e from Expense e join fetch e.category left join fetch e.tag where e.id = :id and e.user.id = :userId")
     Optional<Expense> findOwned(@Param("id") Long id, @Param("userId") Long userId);
 
     @Query("""

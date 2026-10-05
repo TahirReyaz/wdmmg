@@ -40,6 +40,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/avatars/**").permitAll()
                         // Mail-provider webhooks: no JWT; each request is verified by its signature instead.
                         .requestMatchers(HttpMethod.POST, "/api/inbound/**").permitAll()
+                        // Keep-alive for an external cron; returns "ok" without touching the database.
+                        .requestMatchers(HttpMethod.GET, "/ping").permitAll()
+                        .requestMatchers(HttpMethod.HEAD, "/ping").permitAll()
                         .requestMatchers("/api/auth/**", "/actuator/health", "/error",
                                 "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

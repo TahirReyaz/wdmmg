@@ -79,6 +79,10 @@ app:
   public-url: ${APP_PUBLIC_URL:http://localhost:3000}
   # Used to decide what "today" is for recurring expenses.
   zone: ${APP_TIMEZONE:Asia/Kolkata}
+  recurring:
+    # How often due recurring expenses are raised (Spring cron, app timezone). Every 30 min by default;
+    # if the app is kept awake by a pinger, e.g. "0 5 0,6,12,18 * * *" lets a serverless DB sleep more.
+    cron: ${RECURRING_CRON:0 */30 * * * *}
   admin:
     email: ${ADMIN_EMAIL:admin@expense.app}
     password: ${ADMIN_PASSWORD:Admin@12345}

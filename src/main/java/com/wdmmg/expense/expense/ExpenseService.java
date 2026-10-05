@@ -1,5 +1,6 @@
 package com.wdmmg.expense.expense;
 
+import com.wdmmg.expense.tag.TagService;
 import com.wdmmg.expense.category.CategoryService;
 import com.wdmmg.expense.common.ApiException;
 import com.wdmmg.expense.common.Money;
@@ -22,11 +23,13 @@ public class ExpenseService {
     private final ExpenseRepository repo;
     private final UserRepository users;
     private final CategoryService categories;
+    private final TagService tags;
 
-    public ExpenseService(ExpenseRepository repo, UserRepository users, CategoryService categories) {
+    public ExpenseService(ExpenseRepository repo, UserRepository users, CategoryService categories, TagService tags) {
         this.repo = repo;
         this.users = users;
         this.categories = categories;
+        this.tags = tags;
     }
 
     @Transactional(readOnly = true)
@@ -55,6 +58,7 @@ public class ExpenseService {
         Expense e = new Expense();
         e.setUser(users.getReferenceById(userId));
         apply(e, req);
+        e.setTag(tags.resolve(userId, req.tagId()));
         repo.save(e);
         return ExpenseResponse.from(e);
     }
@@ -71,6 +75,7 @@ public class ExpenseService {
         e.setDate(req.date());
         e.setPaymentMethod(req.paymentMethod() == null ? PaymentMethod.OTHER : req.paymentMethod());
         e.setNotes(blankToNull(req.notes()));
+        e.setTag(tags.resolve(userId, req.tagId()));
         repo.flush();
         return ExpenseResponse.from(e);
     }

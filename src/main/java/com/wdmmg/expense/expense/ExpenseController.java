@@ -35,11 +35,12 @@ public class ExpenseController {
             @RequestParam(required = false) String q,
             @RequestParam(required = false) BigDecimal minAmount,
             @RequestParam(required = false) BigDecimal maxAmount,
+            @RequestParam(required = false) Long tagId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "date") String sort,
             @RequestParam(defaultValue = "desc") String dir) {
-        var filter = new ExpenseFilter(from, to, categoryId, paymentMethod, q, minAmount, maxAmount);
+        var filter = new ExpenseFilter(from, to, categoryId, paymentMethod, q, minAmount, maxAmount, tagId);
         return service.search(me.id(), filter, page, size, sort, dir);
     }
 
@@ -74,13 +75,15 @@ public class ExpenseController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) PaymentMethod paymentMethod,
-            @RequestParam(required = false) String q) {
-        var rows = service.all(me.id(), new ExpenseFilter(from, to, categoryId, paymentMethod, q, null, null));
-        StringBuilder sb = new StringBuilder("Date,Name,Category,Amount,Payment Method,Notes\n");
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) Long tagId) {
+        var rows = service.all(me.id(), new ExpenseFilter(from, to, categoryId, paymentMethod, q, null, null, tagId));
+        StringBuilder sb = new StringBuilder("Date,Name,Category,Tag,Amount,Payment Method,Notes\n");
         for (var r : rows) {
             sb.append(r.date()).append(',')
                     .append(csv(r.name())).append(',')
                     .append(csv(r.category().name())).append(',')
+                    .append(csv(r.tag() == null ? null : r.tag().name())).append(',')
                     .append(r.amount().toPlainString()).append(',')
                     .append(r.paymentMethod()).append(',')
                     .append(csv(r.notes())).append('\n');
