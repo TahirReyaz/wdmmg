@@ -32,6 +32,9 @@ public final class ExpenseDtos {
         }
     }
 
+    /** Count and sum of every expense matching a filter (not just one page). */
+    public record ExpenseTotal(long count, BigDecimal total) {}
+
     public record ExpenseFilter(LocalDate from, LocalDate to, Long categoryId, PaymentMethod paymentMethod,
                                 String q, BigDecimal minAmount, BigDecimal maxAmount, Long tagId) {}
 }

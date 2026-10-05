@@ -44,6 +44,21 @@ public class ExpenseController {
         return service.search(me.id(), filter, page, size, sort, dir);
     }
 
+    /** Count and total of all expenses matching the same filters as the list (every page). */
+    @GetMapping("/total")
+    public ExpenseTotal total(
+            @AuthenticationPrincipal AuthUser me,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) PaymentMethod paymentMethod,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) BigDecimal minAmount,
+            @RequestParam(required = false) BigDecimal maxAmount,
+            @RequestParam(required = false) Long tagId) {
+        return service.total(me.id(), new ExpenseFilter(from, to, categoryId, paymentMethod, q, minAmount, maxAmount, tagId));
+    }
+
     @GetMapping("/{id}")
     public ExpenseResponse get(@AuthenticationPrincipal AuthUser me, @PathVariable Long id) {
         return service.get(me.id(), id);

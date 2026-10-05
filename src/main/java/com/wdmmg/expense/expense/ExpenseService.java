@@ -13,6 +13,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -24,6 +31,9 @@ public class ExpenseService {
     private final UserRepository users;
     private final CategoryService categories;
     private final TagService tags;
+
+    @PersistenceContext
+    private EntityManager em;
 
     public ExpenseService(ExpenseRepository repo, UserRepository users, CategoryService categories, TagService tags) {
         this.repo = repo;
@@ -46,6 +56,20 @@ public class ExpenseService {
     public List<ExpenseResponse> all(Long userId, ExpenseFilter filter) {
         return repo.findAll(ExpenseSpecs.forUser(userId, filter), Sort.by(Sort.Direction.DESC, "date", "id"))
                 .stream().map(ExpenseResponse::from).toList();
+    }
+
+    /** One aggregate query with the same filters as the list, so the total covers every page. */
+    @Transactional(readOnly = true)
+    public ExpenseTotal total(Long userId, ExpenseFilter filter) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Tuple> q = cb.createTupleQuery();
+        Root<Expense> root = q.from(Expense.class);
+        q.multiselect(cb.count(root), cb.sum(root.<BigDecimal>get("amount")))
+                .where(ExpenseSpecs.forUser(userId, filter).toPredicate(root, q, cb));
+        Tuple t = em.createQuery(q).getSingleResult();
+        Long count = t.get(0, Long.class);
+        BigDecimal sum = t.get(1, BigDecimal.class);
+        return new ExpenseTotal(count == null ? 0 : count, Money.of(sum));
     }
 
     @Transactional(readOnly = true)
