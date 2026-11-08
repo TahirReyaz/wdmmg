@@ -14,6 +14,13 @@ spring:
     hikari:
       maximum-pool-size: ${DB_POOL_SIZE:5}
       connection-timeout: 20000
+      # Let a serverless database (Neon) scale to zero while the app stays up:
+      # hold no idle connections, close unused ones after a minute, and never send
+      # keep-alive pings (Hikari's default pings every idle connection each 2 minutes,
+      # which counts as activity and keeps the database compute running all the time).
+      minimum-idle: ${DB_POOL_MIN_IDLE:0}
+      idle-timeout: ${DB_POOL_IDLE_TIMEOUT_MS:60000}
+      keepalive-time: 0
   jpa:
     open-in-view: false
     hibernate:
@@ -64,6 +71,11 @@ management:
     # Don't report the app as DOWN just because SMTP isn't configured yet.
     mail:
       enabled: false
+    # Off by default: platform health checks hit /actuator/health every few seconds, and a
+    # database check on each one would keep a serverless database awake around the clock.
+    # Set HEALTH_CHECK_DB=true to include it (e.g. while debugging a connection problem).
+    db:
+      enabled: ${HEALTH_CHECK_DB:false}
 
 springdoc:
   swagger-ui:
@@ -80,9 +92,9 @@ app:
   # Used to decide what "today" is for recurring expenses.
   zone: ${APP_TIMEZONE:Asia/Kolkata}
   recurring:
-    # How often due recurring expenses are raised (Spring cron, app timezone). Every 30 min by default;
-    # if the app is kept awake by a pinger, e.g. "0 5 0,6,12,18 * * *" lets a serverless DB sleep more.
-    cron: ${RECURRING_CRON:0 */30 * * * *}
+    # How often due recurring expenses are raised (Spring cron, app timezone). Four times a day by
+    # default, so a serverless DB isn't woken every half hour; due items also appear when the app is opened.
+    cron: ${RECURRING_CRON:0 5 0,6,12,18 * * *}
   admin:
     email: ${ADMIN_EMAIL:admin@expense.app}
     password: ${ADMIN_PASSWORD:Admin@12345}
